@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.font.GlyphVector;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.awt.event.KeyEvent;
@@ -80,8 +81,38 @@ public class JetrisWindow extends JPanel implements KeyListener
         }
 
         g.setColor(Color.WHITE);
+        g.setFont(new Font("Consolas", Font.BOLD, 40));
+
+        String scoreText = "Score: " + game.getScore();
+        int centerX = getWidth()/ 6;
+        int centerY = getHeight()/ 2;
+        g.drawString(scoreText, centerX, tileSize);
+        g.setFont(new Font("Consolas", Font.BOLD, 30));
+        g.drawString("Controls:", centerX, tileSize * 2);
         g.setFont(new Font("Consolas", Font.BOLD, 20));
-        g.drawString("Score: " + game.getScore(), 10, panelHeight + 25);
+        g.drawString("ASD to move", centerX, tileSize * 3);
+        g.drawString("Space to drop", centerX, tileSize * 4);
+        g.drawString("Z and C to spin", centerX, tileSize * 5);
+        if (game.isGameOver())
+        {
+            Graphics2D g2d = (Graphics2D) g;
+            String text = "Game Over";
+            Font font = new Font("Consolas", Font.BOLD, 50);
+            g2d.setFont(font);
+
+            FontMetrics metrics = g2d.getFontMetrics();
+            int textWidth = metrics.stringWidth(text);
+            int x = (getWidth() - textWidth) / 2;
+            int y = centerY;
+
+            GlyphVector glyphVector = font.createGlyphVector(metrics.getFontRenderContext(), text);
+            Shape textShape = glyphVector.getOutline(x, y);
+            g2d.setColor(Color.BLACK);
+            g2d.setStroke(new BasicStroke(8));
+            g2d.draw(textShape);
+            g2d.setColor(Color.WHITE);
+            g2d.fill(textShape);
+        }
     }
 
     private void drawTile(Graphics g, int x, int y, int type, int tileSize, int xOffset, int yOffset)
