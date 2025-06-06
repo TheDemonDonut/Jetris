@@ -122,11 +122,31 @@ class Game
         return currentPiece;
     }
 
-    public int restart()
+    public boolean isGameOver()
     {
-
-        return score = 0;
+        return gameOver;
     }
+
+    public void setGameOver(boolean over)
+    {
+        gameOver = over;
+    }
+
+    public void reset()
+    {
+        if (gameTimer != null) {
+            gameTimer.stop(); // Important to stop the old timer
+        }
+
+        board = new Board(this);
+        score = 0;
+        gameOver = false;
+        spawnNewPiece();
+        lastFallTime = System.currentTimeMillis();
+
+        start(); // restart timer loop
+    }
+
 
     // Thread that runs alongside the main thread to read user input
     private static void startInputThread()

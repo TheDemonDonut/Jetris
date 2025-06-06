@@ -18,7 +18,6 @@ public class JetrisWindow extends JPanel implements KeyListener
     public JetrisWindow(Game game)
     {
         this.game = game;
-        setPreferredSize(new Dimension(WIDTH * TILE_SIZE, HEIGHT * TILE_SIZE + 30));
         setBackground(Color.BLACK);
         addKeyListener(this);
 
@@ -38,7 +37,15 @@ public class JetrisWindow extends JPanel implements KeyListener
         super.paintComponent(g);
 
         if (classicMode)
-            return;  // Skip drawing if in ASCII/classic mode
+            return;
+
+        int panelWidth = getWidth();
+        int panelHeight = getHeight() - 30; // reserve some space for score
+
+        int tileSize = Math.min(panelWidth / WIDTH, panelHeight / HEIGHT);
+
+        int xOffset = (panelWidth - (tileSize * WIDTH)) / 2;
+        int yOffset = (panelHeight - (tileSize * HEIGHT)) / 2;
 
         Board board = game.getBoard();
         Piece piece = game.getCurrentPiece();
@@ -68,17 +75,16 @@ public class JetrisWindow extends JPanel implements KeyListener
         {
             for (int c = 0; c < WIDTH; c++)
             {
-                drawTile(g, c, r, tempGrid[r][c]);
+                drawTile(g, c, r, tempGrid[r][c], tileSize, xOffset, yOffset);
             }
         }
 
         g.setColor(Color.WHITE);
         g.setFont(new Font("Consolas", Font.BOLD, 20));
-        g.drawString("Score: " + game.getScore(), 10, 620);
+        g.drawString("Score: " + game.getScore(), 10, panelHeight + 25);
     }
 
-
-    private void drawTile(Graphics g, int x, int y, int type)
+    private void drawTile(Graphics g, int x, int y, int type, int tileSize, int xOffset, int yOffset)
     {
         Color color = switch (type)
         {
@@ -93,15 +99,15 @@ public class JetrisWindow extends JPanel implements KeyListener
             default -> Color.DARK_GRAY;
         };
 
-        g.setColor(color);
-        g.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-        g.setColor(Color.BLACK);
-        g.drawRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        int px = xOffset + x * tileSize;
+        int py = yOffset + y * tileSize;
 
-        g.setColor(Color.WHITE);
-        g.setFont(new Font("Consolas", Font.BOLD, 20));
-        g.drawString("Score: " + game.getScore(), 10, 620);
+        g.setColor(color);
+        g.fillRect(px, py, tileSize, tileSize);
+        g.setColor(Color.BLACK);
+        g.drawRect(px, py, tileSize, tileSize);
     }
+
 
     @Override
     public void keyPressed(KeyEvent e)
@@ -143,10 +149,16 @@ public class JetrisWindow extends JPanel implements KeyListener
                 board.lockPiece(piece);
                 game.checkFullRows();
                 game.spawnNewPiece();
-
                 if (!board.canMove(game.getCurrentPiece(), 0, 0))
                 {
                     System.out.println("Game Over!");
+                    game.setGameOver(true);
+                }
+                break;
+            case KeyEvent.VK_ENTER:
+                if (game.isGameOver()) {
+                    game.reset();
+                    repaint();
                 }
                 break;
         }
@@ -170,15 +182,13 @@ public class JetrisWindow extends JPanel implements KeyListener
         JetrisWindow panel = new JetrisWindow(game);
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH); // Maximize window
+        frame.setUndecorated(true); // Optional: remove window borders
         frame.add(panel);
-        frame.pack();
-        frame.setResizable(false);
-        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
 
-        panel.setFocusable(true);
-        panel.requestFocusInWindow();
-        panel.requestFocus();
+        frame.setVisible(true);
+        panel.setFocusable(true); // ensure this
+        panel.requestFocusInWindow(); // required!
     }
-
 }
