@@ -12,7 +12,13 @@ public class JetrisWindow extends JPanel implements KeyListener
     private static final int WIDTH = 10;
     private static final int HEIGHT = 20;
 
+    static JTextField textField;
+
+    private static final boolean textVisible = false;
+
     private static boolean classicMode = false;
+
+    private static boolean readyToRestart = false;
 
     private final Game game;
 
@@ -35,6 +41,11 @@ public class JetrisWindow extends JPanel implements KeyListener
     @Override
     protected void paintComponent(Graphics g)
     {
+        if (!game.isGameOver() && textField != null)
+        {
+            textField.setVisible(false);
+        }
+
         super.paintComponent(g);
 
         if (classicMode)
@@ -96,12 +107,21 @@ public class JetrisWindow extends JPanel implements KeyListener
         if (game.isGameOver())
         {
             Graphics2D g2d = (Graphics2D) g;
+
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.1f));
+            g2d.setColor(Color.WHITE);
+            g2d.fillRect(0,0,getWidth(),getHeight());
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
+            g2d.fillRect(((getWidth()/ 10) * 3), ((getHeight()/ 2) - (getHeight()/ 10)), ((getWidth()/ 10) * 4), (getHeight()/ 4));
+            g2d.setComposite(AlphaComposite.SrcOver);
+
             String text = "Game Over";
             Font font = new Font("Consolas", Font.BOLD, 50);
             g2d.setFont(font);
 
             FontMetrics metrics = g2d.getFontMetrics();
             int textWidth = metrics.stringWidth(text);
+            int textHeight = metrics.getHeight();
             int x = (getWidth() - textWidth) / 2;
             int y = centerY;
 
@@ -112,6 +132,38 @@ public class JetrisWindow extends JPanel implements KeyListener
             g2d.draw(textShape);
             g2d.setColor(Color.WHITE);
             g2d.fill(textShape);
+
+            if (readyToRestart)
+            {
+                text = "Press Enter to play";
+            }
+            else
+            {
+                text = "Enter name to submit score:";
+            }
+            font = new Font("Consolas", Font.BOLD, 30);
+            g2d.setFont(font);
+
+            metrics = g2d.getFontMetrics();
+            textWidth = metrics.stringWidth(text);
+            textHeight = metrics.getHeight();
+            x = (getWidth() - textWidth) / 2;
+            y = (getHeight() / 2) + textHeight;
+
+            glyphVector = font.createGlyphVector(metrics.getFontRenderContext(), text);
+            textShape = glyphVector.getOutline(x, y);
+            g2d.setColor(Color.BLACK);
+            g2d.setStroke(new BasicStroke(3));
+            g2d.draw(textShape);
+            g2d.setColor(Color.WHITE);
+            g2d.fill(textShape);
+
+            if (textField != null && !readyToRestart)
+            {
+                textField.setBounds(x, y + 10, textWidth, 35); // <-- taller height
+                textField.setVisible(true);
+                textField.requestFocusInWindow();
+            }
         }
     }
 
@@ -187,8 +239,13 @@ public class JetrisWindow extends JPanel implements KeyListener
                 }
                 break;
             case KeyEvent.VK_ENTER:
-                if (game.isGameOver()) {
+                if (game.isGameOver() && readyToRestart && !textField.isVisible()) {
                     game.reset();
+                    readyToRestart = false;
+
+                    textField.setEnabled(true);
+                    textField.setText(null);
+
                     repaint();
                 }
                 break;
@@ -211,15 +268,45 @@ public class JetrisWindow extends JPanel implements KeyListener
     {
         JFrame frame = new JFrame("Jetris");
         JetrisWindow panel = new JetrisWindow(game);
+        panel.setLayout(null); // allow absolute positioning
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH); // Maximize window
-        frame.setUndecorated(true); // Optional: remove window borders
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        frame.setUndecorated(true);
         frame.add(panel);
         frame.setVisible(true);
 
-        frame.setVisible(true);
-        panel.setFocusable(true); // ensure this
-        panel.requestFocusInWindow(); // required!
+        textField = new JTextField(20);
+        textField.setFont(new Font("Consolas", Font.BOLD, 30));
+        textField.setPreferredSize(new Dimension(400, 50));
+        textField.setCaretColor(Color.BLACK);
+        textField.addActionListener(e ->
+        {
+            String playerName = textField.getText().trim();
+
+            if (!playerName.isEmpty())
+            {
+                System.out.println("Player submitted name: " + playerName);
+                textField.setToolTipText("Enter your name and press Enter");
+                textField.setText(" ");
+
+                readyToRestart = true;
+
+                int score = game.getScore();
+                Leaderboard.newScore(playerName, score);
+
+                textField.setVisible(false);
+                textField.setEnabled(false);
+                textField.setText(null);
+
+                SwingUtilities.getWindowAncestor(textField).repaint();
+            }
+        });
+
+        textField.setVisible(false);
+        panel.add(textField);
+
+        panel.setFocusable(true);
+        panel.requestFocusInWindow();
     }
 }
