@@ -1,10 +1,10 @@
-# 🎮 Jetris
+# Jetris
 
 A sleek, minimalist **Tetris clone** built in Java — complete with a GUI, keyboard controls, and a persistent leaderboard.
 
 ---
 
-## 🚀 How It Works
+## How It Works
 
 At the core of Jetris is a **2D integer array** that represents the game board. Each tetromino piece is defined by a shape matrix and manipulated using standard transformation logic:
 
@@ -15,7 +15,7 @@ At the core of Jetris is a **2D integer array** that represents the game board. 
 
 ---
 
-## 🖼️ Features
+## Features
 
 - **Swing GUI** with smooth graphics
 - **Real-time keyboard input** — no need to press Enter
@@ -26,7 +26,7 @@ At the core of Jetris is a **2D integer array** that represents the game board. 
 
 ---
 
-## 🧰 Tech Stack
+## Tech Stack
 
 - Java (JDK 17+ recommended)
 - Swing (GUI)
@@ -34,7 +34,7 @@ At the core of Jetris is a **2D integer array** that represents the game board. 
 
 ---
 
-## 🛠️ How to Run
+## How to Run
 
 ### From an IDE (IntelliJ, VS Code, etc.)
 
@@ -47,3 +47,5 @@ At the core of Jetris is a **2D integer array** that represents the game board. 
 ```bash
 javac -cp ".;libs/gson-2.10.1.jar" Jetris.java
 java -cp ".;libs/gson-2.10.1.jar" Jetris
+```
+
