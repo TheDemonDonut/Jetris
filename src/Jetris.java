@@ -5,6 +5,7 @@ public class Jetris
         System.out.println("Starting game...");
         Game game = new Game();
         JetrisWindow.launch(game);
+        Leaderboard.launchLeaderboard(game);
         game.start();
     }
 }
