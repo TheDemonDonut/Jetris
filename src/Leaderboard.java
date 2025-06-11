@@ -1,4 +1,5 @@
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 import java.awt.*;
@@ -17,7 +18,7 @@ import javax.swing.*;
 
 public class Leaderboard extends JPanel
 {
-    public static Gson gson = new Gson();
+    public static Gson gson = new GsonBuilder().setPrettyPrinting().create();
     public static List<ScoreEntry> leaderboard = new ArrayList<>();
     public static File file = new File("src/leaderBoard.json");
 

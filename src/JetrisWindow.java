@@ -101,7 +101,7 @@ public class JetrisWindow extends JPanel implements KeyListener
         g.setFont(new Font("Consolas", Font.BOLD, 30));
         g.drawString("Controls:", centerX, tileSize * 2);
         g.setFont(new Font("Consolas", Font.BOLD, 20));
-        g.drawString("ASD to move", centerX, tileSize * 3);
+        g.drawString("← ↓ → to move", centerX, tileSize * 3);
         g.drawString("Space to drop", centerX, tileSize * 4);
         g.drawString("Z and C to spin", centerX, tileSize * 5);
         if (game.isGameOver())
